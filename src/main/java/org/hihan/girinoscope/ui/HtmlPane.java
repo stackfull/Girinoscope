@@ -34,18 +34,15 @@ public class HtmlPane extends JEditorPane {
     }
 
     private static String loadContent(URL url) throws IOException {
-	InputStream input = url.openStream();
-	try {
-	    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-	    StringBuilder file = new StringBuilder();
-	    String line;
-	    while ((line = reader.readLine()) != null) {
-		file.append(line);
-	    }
-	    return file.toString();
-	} finally {
-	    input.close();
-	}
+		try (InputStream input = url.openStream()) {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+			StringBuilder file = new StringBuilder();
+			String line;
+			while ((line = reader.readLine()) != null) {
+				file.append(line);
+			}
+			return file.toString();
+		}
     }
 
     public HtmlPane(URL url) throws IOException {
