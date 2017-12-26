@@ -1,5 +1,6 @@
 package org.hihan.girinoscope.ui;
 
+import org.hihan.girinoscope.Native;
 import gnu.io.CommPortIdentifier;
 
 import java.awt.BorderLayout;
@@ -49,12 +50,7 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.WindowConstants;
 
-import org.hihan.girinoscope.Native;
 import org.hihan.girinoscope.comm.Girino;
-import org.hihan.girinoscope.comm.Girino.Parameter;
-import org.hihan.girinoscope.comm.Girino.PrescalerInfo;
-import org.hihan.girinoscope.comm.Girino.TriggerEventMode;
-import org.hihan.girinoscope.comm.Girino.VoltageReference;
 import org.hihan.girinoscope.comm.Serial;
 import org.hihan.girinoscope.ui.images.Icon;
 
@@ -88,7 +84,7 @@ public class UI extends JFrame {
 
     private CommPortIdentifier portId;
 
-    private Map<Parameter, Integer> parameters = Girino.getDefaultParameters(new HashMap<Parameter, Integer>());
+    private Map<Girino.Parameter, Integer> parameters = Girino.getDefaultParameters(new HashMap<Girino.Parameter, Integer>());
 
     private GraphPane graphPane;
 
@@ -104,7 +100,7 @@ public class UI extends JFrame {
 
 	private CommPortIdentifier frozenPortId;
 
-	private Map<Parameter, Integer> frozenParameters = new HashMap<Parameter, Integer>();
+	private Map<Girino.Parameter, Integer> frozenParameters = new HashMap<Girino.Parameter, Integer>();
 
 	public DataAcquisitionTask() {
 	    startAcquiringAction.setEnabled(false);
@@ -154,8 +150,8 @@ public class UI extends JFrame {
 	    do {
 		boolean updateConnection;
 		synchronized (UI.this) {
-		    parameters.put(Parameter.THRESHOLD, graphPane.getThreshold());
-		    parameters.put(Parameter.WAIT_DURATION, graphPane.getWaitDuration());
+		    parameters.put(Girino.Parameter.THRESHOLD, graphPane.getThreshold());
+		    parameters.put(Girino.Parameter.WAIT_DURATION, graphPane.getWaitDuration());
 		    updateConnection = !getChanges(frozenParameters).isEmpty() || frozenPortId != portId;
 		}
 		if (updateConnection) {
@@ -272,8 +268,8 @@ public class UI extends JFrame {
 	@Override
 	public void actionPerformed(ActionEvent event) {
 	    synchronized (UI.this) {
-		parameters.put(Parameter.THRESHOLD, graphPane.getThreshold());
-		parameters.put(Parameter.WAIT_DURATION, graphPane.getWaitDuration());
+		parameters.put(Girino.Parameter.THRESHOLD, graphPane.getThreshold());
+		parameters.put(Girino.Parameter.WAIT_DURATION, graphPane.getWaitDuration());
 	    }
 	    currentDataAcquisitionTask = new DataAcquisitionTask();
 	    currentDataAcquisitionTask.execute();
@@ -302,7 +298,7 @@ public class UI extends JFrame {
 
 	setLayout(new BorderLayout());
 
-	graphPane = new GraphPane(parameters.get(Parameter.THRESHOLD), parameters.get(Parameter.WAIT_DURATION));
+	graphPane = new GraphPane(parameters.get(Girino.Parameter.THRESHOLD), parameters.get(Girino.Parameter.WAIT_DURATION));
 	graphPane.setYCoordinateSystem(yAxisBuilder.build());
 	graphPane.setPreferredSize(new Dimension(800, 600));
 	add(graphPane, BorderLayout.CENTER);
@@ -395,13 +391,13 @@ public class UI extends JFrame {
     private JMenu createPrescalerMenu() {
 	JMenu menu = new JMenu("Acquisition rate / Time frame");
 	ButtonGroup group = new ButtonGroup();
-	for (final PrescalerInfo info : PrescalerInfo.values()) {
+	for (final Girino.PrescalerInfo info : Girino.PrescalerInfo.values()) {
 	    Action setPrescaler = new AbstractAction(info.description) {
 
 		@Override
 		public void actionPerformed(ActionEvent event) {
 		    synchronized (UI.this) {
-			parameters.put(Parameter.PRESCALER, info.value);
+			parameters.put(Girino.Parameter.PRESCALER, info.value);
 		    }
 		    String xFormat = info.timeframe > 0.005 ? "#,##0 ms" : "#,##0.0 ms";
 		    Axis xAxis = new Axis(0, info.timeframe * 1000, xFormat);
@@ -414,7 +410,7 @@ public class UI extends JFrame {
 	    } else if (info.tooFast) {
 		button.setForeground(Color.ORANGE.darker());
 	    }
-	    if (info.value == parameters.get(Parameter.PRESCALER)) {
+	    if (info.value == parameters.get(Girino.Parameter.PRESCALER)) {
 		button.doClick();
 	    }
 	    group.add(button);
@@ -426,18 +422,18 @@ public class UI extends JFrame {
     private JMenu createTriggerEventMenu() {
 	JMenu menu = new JMenu("Trigger event mode");
 	ButtonGroup group = new ButtonGroup();
-	for (final TriggerEventMode mode : TriggerEventMode.values()) {
+	for (final Girino.TriggerEventMode mode : Girino.TriggerEventMode.values()) {
 	    Action setPrescaler = new AbstractAction(mode.description) {
 
 		@Override
 		public void actionPerformed(ActionEvent event) {
 		    synchronized (UI.this) {
-			parameters.put(Parameter.TRIGGER_EVENT, mode.value);
+			parameters.put(Girino.Parameter.TRIGGER_EVENT, mode.value);
 		    }
 		}
 	    };
 	    AbstractButton button = new JCheckBoxMenuItem(setPrescaler);
-	    if (mode.value == parameters.get(Parameter.TRIGGER_EVENT)) {
+	    if (mode.value == parameters.get(Girino.Parameter.TRIGGER_EVENT)) {
 		button.doClick();
 	    }
 	    group.add(button);
@@ -449,18 +445,18 @@ public class UI extends JFrame {
     private JMenu createVoltageReferenceMenu() {
 	JMenu menu = new JMenu("Voltage reference");
 	ButtonGroup group = new ButtonGroup();
-	for (final VoltageReference reference : VoltageReference.values()) {
+	for (final Girino.VoltageReference reference : Girino.VoltageReference.values()) {
 	    Action setPrescaler = new AbstractAction(reference.description) {
 
 		@Override
 		public void actionPerformed(ActionEvent event) {
 		    synchronized (UI.this) {
-			parameters.put(Parameter.VOLTAGE_REFERENCE, reference.value);
+			parameters.put(Girino.Parameter.VOLTAGE_REFERENCE, reference.value);
 		    }
 		}
 	    };
 	    AbstractButton button = new JCheckBoxMenuItem(setPrescaler);
-	    if (reference.value == parameters.get(Parameter.VOLTAGE_REFERENCE)) {
+	    if (reference.value == parameters.get(Girino.Parameter.VOLTAGE_REFERENCE)) {
 		button.doClick();
 	    }
 	    group.add(button);
@@ -571,17 +567,17 @@ public class UI extends JFrame {
 	}
     }
 
-    private Map<Parameter, Integer> getChanges(Map<Parameter, Integer> oldParameters) {
-	Map<Parameter, Integer> changes = new HashMap<Parameter, Integer>();
-	for (Map.Entry<Parameter, Integer> entry : parameters.entrySet()) {
-	    Parameter parameter = entry.getKey();
+    private Map<Girino.Parameter, Integer> getChanges(Map<Girino.Parameter, Integer> oldParameters) {
+	Map<Girino.Parameter, Integer> changes = new HashMap<Girino.Parameter, Integer>();
+	for (Map.Entry<Girino.Parameter, Integer> entry : parameters.entrySet()) {
+	    Girino.Parameter parameter = entry.getKey();
 	    Integer newValue = entry.getValue();
 	    if (!same(newValue, oldParameters.get(parameter))) {
 		changes.put(parameter, newValue);
 	    }
 	}
-	for (Map.Entry<Parameter, Integer> entry : oldParameters.entrySet()) {
-	    Parameter parameter = entry.getKey();
+	for (Map.Entry<Girino.Parameter, Integer> entry : oldParameters.entrySet()) {
+	    Girino.Parameter parameter = entry.getKey();
 	    if (!parameters.containsKey(parameter)) {
 		changes.put(parameter, null);
 	    }

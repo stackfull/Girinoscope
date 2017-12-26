@@ -14,7 +14,7 @@ import javax.swing.ImageIcon;
 public class Icon {
 
 	public static ImageIcon get(String name) {
-		URL url = Icon.class.getResource(name);
+		URL url = Icon.class.getResource("/"+name);
 		if (url != null) {
 			return new ImageIcon(url);
 		} else {
@@ -24,7 +24,7 @@ public class Icon {
 	}
 
 	public static Image getImage(String name) {
-		URL url = Icon.class.getResource(name);
+		URL url = Icon.class.getResource("/"+name);
 		if (url != null) {
 			try {
 				return ImageIO.read(url);

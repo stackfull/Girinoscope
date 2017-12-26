@@ -19,8 +19,6 @@ import java.util.Map;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import org.hihan.girinoscope.ui.Axis.GraphLabel;
-
 @SuppressWarnings("serial")
 public class GraphPane extends JPanel {
 
@@ -207,9 +205,9 @@ public class GraphPane extends JPanel {
 
     private void paintXAxis(Graphics2D g, Insets labelInsets) {
 	g.translate(graphArea.x, graphArea.y);
-	GraphLabel[] xLabels = xAxis.graphLabels();
+	Axis.GraphLabel[] xLabels = xAxis.graphLabels();
 	for (int i = 0; i < xLabels.length; ++i) {
-	    GraphLabel xLabel = xLabels[i];
+	    Axis.GraphLabel xLabel = xLabels[i];
 	    int xOffset = (int) (i * graphArea.width / xAxis.getFraction());
 
 	    Stroke defaultStroke = g.getStroke();
@@ -237,9 +235,9 @@ public class GraphPane extends JPanel {
 
     private void paintYAxis(Graphics2D g, Insets labelInsets) {
 	g.translate(graphArea.x, graphArea.y);
-	GraphLabel[] yLabels = yAxis.graphLabels();
+	Axis.GraphLabel[] yLabels = yAxis.graphLabels();
 	for (int i = 0; i < yLabels.length; ++i) {
-	    GraphLabel yLabel = yLabels[yLabels.length - i - 1];
+	    Axis.GraphLabel yLabel = yLabels[yLabels.length - i - 1];
 	    int yOffset = (int) (i * graphArea.height / yAxis.getFraction());
 
 	    Stroke defaultStroke = g.getStroke();

@@ -1,0 +1,39 @@
+/* user guide available at https://docs.gradle.org/4.4.1/userguide/tutorial_java_projects.html */
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'application'
+
+ext {
+  tstamp = new Date().format('yyyyddMMhhmm')
+}
+
+group = girinioscopeGroup
+version = girinioscopeVersion
+mainClassName = girinioscopeMainClass
+sourceCompatibility = girinioscopeJavaVersion
+targetCompatibility = girinioscopeJavaVersion
+
+jar {
+  manifest {
+    attributes 'Implementation-Title': project.name,
+            'Implementation-Version': version,
+            'Main-Class': girinioscopeMainClass
+  }
+}
+
+applicationDistribution.from('lib') {
+  include "*.jar"
+  into 'lib'
+}
+applicationDistribution.from('native')
+
+//    archivesBaseName "${project.name}-v${version}-beta-${tstamp}.zip"
+
+repositories {
+  jcenter()
+}
+
+dependencies {
+  compile fileTree(dir: 'lib', include: ['*.jar'])
+}

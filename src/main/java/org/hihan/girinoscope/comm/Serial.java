@@ -44,6 +44,7 @@ public class Serial implements Closeable {
     private static final Pattern[] ACCEPTABLE_PORT_NAMES = {
             //
             Pattern.compile("/dev/tty\\.usbserial-.+"), // Mac OS X
+            Pattern.compile("/dev/cu\\.wchusbserial.+"), // Mac OS X
             Pattern.compile("/dev/tty\\.usbmodem.+"), // Mac OS X
             Pattern.compile("/dev/ttyACM\\d+"), // Raspberry Pi
             Pattern.compile("/dev/ttyUSB\\d+"), // Linux
