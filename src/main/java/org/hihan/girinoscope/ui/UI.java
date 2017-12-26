@@ -1,8 +1,6 @@
 package org.hihan.girinoscope.ui;
 
-import org.hihan.girinoscope.Native;
-import gnu.io.CommPortIdentifier;
-
+import com.fazecast.jSerialComm.*;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -70,7 +68,6 @@ public class UI extends JFrame {
 
 	SwingUtilities.invokeAndWait(new Runnable() {
 	    public void run() {
-		Native.setBestLookAndFeel();
 		JFrame frame = new UI();
 		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		frame.pack();
@@ -82,7 +79,7 @@ public class UI extends JFrame {
 
     private Girino girino = new Girino();
 
-    private CommPortIdentifier portId;
+    private SerialPort portId;
 
     private Map<Girino.Parameter, Integer> parameters = Girino.getDefaultParameters(new HashMap<Girino.Parameter, Integer>());
 
@@ -98,7 +95,7 @@ public class UI extends JFrame {
 
     private class DataAcquisitionTask extends SwingWorker<Void, byte[]> {
 
-	private CommPortIdentifier frozenPortId;
+	private SerialPort frozenPortId;
 
 	private Map<Girino.Parameter, Integer> frozenParameters = new HashMap<Girino.Parameter, Integer>();
 
@@ -123,7 +120,7 @@ public class UI extends JFrame {
 		frozenParameters.putAll(parameters);
 	    }
 
-	    setStatus("blue", "Contacting Girino on %s...", frozenPortId.getName());
+	    setStatus("blue", "Contacting Girino on %s...", frozenPortId.getDescriptivePortName());
 
 	    Future<Void> connection = executor.submit(new Callable<Void>() {
 
@@ -136,7 +133,7 @@ public class UI extends JFrame {
 	    try {
 		connection.get(5, TimeUnit.SECONDS);
 	    } catch (TimeoutException e) {
-		throw new TimeoutException("No Girino detected on " + frozenPortId.getName());
+		throw new TimeoutException("No Girino detected on " + frozenPortId.getDescriptivePortName());
 	    } catch (InterruptedException e) {
 		connection.cancel(true);
 		throw e;
@@ -144,7 +141,7 @@ public class UI extends JFrame {
 	}
 
 	private void acquireData() throws Exception {
-	    setStatus("blue", "Acquiring data from %s...", frozenPortId.getName());
+	    setStatus("blue", "Acquiring data from %s...", frozenPortId.getDescriptivePortName());
 	    Future<byte[]> acquisition = null;
 	    boolean terminated;
 	    do {
@@ -204,7 +201,7 @@ public class UI extends JFrame {
 		if (!isCancelled()) {
 		    get();
 		}
-		setStatus("blue", "Done acquiring data from %s.", frozenPortId.getName());
+		setStatus("blue", "Done acquiring data from %s.", frozenPortId.getDescriptivePortName());
 	    } catch (ExecutionException e) {
 		setStatus("red", e.getCause().getMessage());
 	    } catch (Exception e) {
@@ -370,8 +367,9 @@ public class UI extends JFrame {
     private JMenu createSerialMenu() {
 	JMenu menu = new JMenu("Serial port");
 	ButtonGroup group = new ButtonGroup();
-	for (final CommPortIdentifier portId : Serial.enumeratePorts()) {
-	    Action setSerialPort = new AbstractAction(portId.getName()) {
+	for (SerialPort portId: SerialPort.getCommPorts()) {
+
+	    Action setSerialPort = new AbstractAction(portId.getDescriptivePortName()) {
 
 		@Override
 		public void actionPerformed(ActionEvent event) {

@@ -1,20 +1,16 @@
 package org.hihan.girinoscope.comm;
 
-import gnu.io.CommPortIdentifier;
-import gnu.io.SerialPort;
+import com.fazecast.jSerialComm.SerialPort;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-
-import org.hihan.girinoscope.Native;
 
 /**
  * Reading operations are semi-interruptible here. As long as nothing as been
@@ -32,10 +28,6 @@ import org.hihan.girinoscope.Native;
 public class Serial implements Closeable {
 
     private static final Logger logger = Logger.getLogger(Serial.class.getName());
-
-    static {
-        Native.setLibraryPath();
-    }
 
     /**
      * The port we're normally going to use. Port detection could be forced by
@@ -72,36 +64,31 @@ public class Serial implements Closeable {
      */
     private OutputStream output;
 
-    public Serial(CommPortIdentifier portId) throws Exception {
+    public Serial(SerialPort portId) throws Exception {
         connect(portId);
     }
 
-    public void connect(CommPortIdentifier portId) throws Exception {
-        serialPort = (SerialPort) portId.open(getClass().getName(), TIME_OUT);
-
-        serialPort.setSerialPortParams(DATA_RATE, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-        serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
-
+    public void connect(SerialPort portId) throws Exception {
+        serialPort = portId;
+        portId.openPort();
+        portId.setComPortTimeouts(SerialPort.TIMEOUT_READ_BLOCKING, TIME_OUT, TIME_OUT);
+        portId.setComPortParameters(DATA_RATE, 8, SerialPort.ONE_STOP_BIT, SerialPort.NO_PARITY);
+        portId.setFlowControl(SerialPort.FLOW_CONTROL_DISABLED);
         output = serialPort.getOutputStream();
         input = serialPort.getInputStream();
-
-        serialPort.notifyOnDataAvailable(false);
     }
 
-    public static List<CommPortIdentifier> enumeratePorts() {
-        List<CommPortIdentifier> ports = new LinkedList<CommPortIdentifier>();
+    public static List<SerialPort> enumeratePorts() {
+        List<SerialPort> ports = new LinkedList<SerialPort>();
 
-        Enumeration<?> portEnum = CommPortIdentifier.getPortIdentifiers();
-        while (portEnum.hasMoreElements()) {
-            CommPortIdentifier portIdentifier = (CommPortIdentifier) portEnum.nextElement();
+        for (SerialPort port: SerialPort.getCommPorts()) {
             for (Pattern acceptablePortName : ACCEPTABLE_PORT_NAMES) {
-                String portName = portIdentifier.getName();
+                String portName = port.getSystemPortName();
                 if (acceptablePortName.matcher(portName).matches()) {
-                    ports.add(portIdentifier);
+                    ports.add(port);
                 }
             }
         }
-
         return ports;
     }
 
@@ -177,7 +164,7 @@ public class Serial implements Closeable {
             } catch (IOException e) {
                 logger.log(Level.WARNING, "When flushing output before closing serial.", e);
             }
-            serialPort.close();
+            serialPort.closePort();
             serialPort = null;
         }
     }

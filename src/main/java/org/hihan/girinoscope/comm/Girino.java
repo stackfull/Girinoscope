@@ -1,6 +1,7 @@
 package org.hihan.girinoscope.comm;
 
-import gnu.io.CommPortIdentifier;
+
+import com.fazecast.jSerialComm.SerialPort;
 
 import java.io.IOException;
 import java.util.AbstractMap;
@@ -160,7 +161,7 @@ public class Girino {
 
     private Serial serial;
 
-    private CommPortIdentifier portId;
+    private SerialPort portId;
 
     private Map<Parameter, Integer> parameters = new HashMap<Parameter, Integer>();
 
@@ -174,7 +175,7 @@ public class Girino {
         return parameters;
     }
 
-    private void connect(CommPortIdentifier newPortId) throws Exception {
+    private void connect(SerialPort newPortId) throws Exception {
         if (newPortId != null) {
             if (serial == null || !same(portId, newPortId)) {
                 portId = newPortId;
@@ -254,7 +255,7 @@ public class Girino {
         }
     }
 
-    public void setConnection(final CommPortIdentifier newPortId, final Map<Parameter, Integer> newParameters)
+    public void setConnection(final SerialPort newPortId, final Map<Parameter, Integer> newParameters)
             throws Exception {
         connect(newPortId);
         if (serial != null) {
