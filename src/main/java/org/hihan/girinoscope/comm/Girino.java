@@ -16,7 +16,6 @@ public class Girino {
         BUFFER_SIZE(null, true), //
         BAUD_RATE(null, true), //
         PRESCALER("p", true), //
-        VOLTAGE_REFERENCE("r", false), //
         TRIGGER_EVENT("e", true), //
         WAIT_DURATION("w", true), //
         THRESHOLD("t", true);
@@ -128,26 +127,6 @@ public class Girino {
         }
     }
 
-    public enum VoltageReference {
-
-        AREF(0, "AREF, Internal Vref turned off"), //
-        AVCC(1, "AVCC with external capacitor at AREF pin"), //
-        /*
-         * The value is misleading since it sets [REFS1, REFS0] to 11 (10 is
-         * reserved). At least, the trigger event mode always uses the [ACI1,
-         * ACI0] value (hence the gap since 2 is also a reserved value).
-         */
-        INTERNAL(2, "Internal 1.1V Vref with external capacitor at AREF pin");
-
-        public int value;
-        public String description;
-
-        private VoltageReference(int value, String description) {
-            this.value = value;
-            this.description = description;
-        }
-    }
-
     /** Milliseconds to wait once a new connection has been etablished. */
     private static final int SETUP_DELAY_ON_RESET = 5000;
 
@@ -168,7 +147,6 @@ public class Girino {
     public static Map<Parameter, Integer> getDefaultParameters(Map<Parameter, Integer> parameters) {
         parameters.put(Parameter.BUFFER_SIZE, 1280);
         parameters.put(Parameter.PRESCALER, 32);
-        parameters.put(Parameter.VOLTAGE_REFERENCE, VoltageReference.AVCC.value);
         parameters.put(Parameter.TRIGGER_EVENT, TriggerEventMode.TOGGLE.value);
         parameters.put(Parameter.WAIT_DURATION, 1280 - 32);
         parameters.put(Parameter.THRESHOLD, 150);
